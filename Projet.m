@@ -7,6 +7,8 @@ end
 
 %% Récuperer la 1ère image
 close all
+clear all
+
 video = VideoReader("vid_in2.mp4");
 if hasFrame(video)
     frame = readFrame(video);
@@ -18,10 +20,12 @@ gradPratique = CalculerGradientPrat(0.5, frame);
 % Capture des coordonnées pour la 1ère image
 coins = Demander4Points(frame);
 
-%% Détermination de l'ensemble des points Mij
-Mij = DeterminerMij(10, 3, 0.7, 10, coins);
-Mij
+% Détermination de l'ensemble des points Mij
+Mij = DeterminerMij(5, 3, 0.7, 10, coins);% Paramètres : u, v, p, L
+
 % Calculer les gradients théoriques
+
+
 
 %% Functions
 
@@ -50,21 +54,32 @@ function grad = CalculerGradientPrat(sigma, image)
 end
 
 function Mij = DeterminerMij(u, v, p, L, angles)
-    Mij=[];
-    Mi=[];
-    for seg=1:5
-        for i=-u:u
-            for j=-v:v
+    Mij = [];
+    for seg=1:4
+       MijPourUnSeg = [];
+       for j=-v:v+1
+            Mi=[];
+            for i=-u:u+1
+                
                 vecteur = (angles(:,mod(seg,4)+1)-angles(:,seg))/norm(angles(:,mod(seg,4)+1)-angles(:,seg));
-                Mi = [Mi round([(angles(1, mod(seg,4)+1)+angles(1,seg))/2 ; (angles(2,mod(seg,4)+1)+angles(2, seg))/2]+i*p/(2*u)*(angles(:,mod(seg,4)+1)-angles(:,seg))+j*L*[-vecteur(2); vecteur(1)])];
+                point = (angles(:, mod(seg,4)+1)+angles(:,seg))/2 + i*p/(2*u)*(angles(:,mod(seg,4)+1)-angles(:,seg)) + j*L*[-vecteur(2); vecteur(1)];
+                Mi = [Mi round(point)];
             end
-            Mij = [Mij Mi];
-        end
-        for i=1:size(Mij,2)
-            plot(Mij(1,i),Mij(2,i), 'r+', 'MarkerSize', 5, 'LineWidth', 0.5);
+            MijPourUnSeg = [MijPourUnSeg ; Mi];
+       end
+       Mij = cat(3, Mij, MijPourUnSeg);
+    end
+
+    %Afficher les points Mij
+    nbligne = size(Mij(:, :,1), 1);
+    nbcolonne = size(Mij(:, :, 1),2);
+    for segment=1:4
+        for ligne=1:2:nbligne
+            for colonne=1:nbcolonne
+                plot(Mij(ligne, colonne, segment),Mij(ligne+1,colonne, segment), 'r+', 'MarkerSize', 5, 'LineWidth', 0.5);
+            end
         end
     end
-    Mij = cat(3, Mij(1), Mij(2), Mij(3), Mij(4))
 end
 
 function coins = Demander4Points(firstImage)
