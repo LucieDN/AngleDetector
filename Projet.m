@@ -12,8 +12,10 @@ video = VideoReader("vid_in2.mp4");
 if hasFrame(video)
     frame = readFrame(video);
 end
+
 %% Code Principal
-sigma = 0.5;
+
+sigma = 30;
 % Calcul des gradients en pratique
 gradPratique = CalculerGradientPrat(sigma, frame);
 
@@ -97,32 +99,40 @@ end
 function grad = ModeleGaussien(angles, Mij, sigma)
     grad =[];
     for segment=1:4
-        vecteurDir = (angles(:,mod(segment,4)+1)-angles(:,segment))/norm(angles(:,mod(segment,4)+1)-angles(:,segment));
-        module = sigma*sqrt(2*pi)*[-vecteurDir(2); vecteurDir(1)];
-
-        % Calcul du gradient théorique
-        nbligne = size(Mij(:, :,segment), 1);
-        nbcolonne = size(Mij(:, :, segment),2);
-        gradPour1Segment =[];
-        for ligne=1:2:nbligne
-            gradi = [];
-            for colonne=1:nbcolonne
-                x = Mij(ligne, colonne,segment);
-                y = Mij(ligne+1, colonne,segment);
-                d = norm([x ; y] - (angles(:, mod(segment,4)+1)+angles(:,segment))/2);
-                phase = -d^2/(2*sigma^2);
-                gradient = -module*exp(phase);
-
-                % Visualisation des gradients
-                gradi = [gradi gradient];
-                res = round([x y] + gradient.');
-                Xgrad = res(1);
-                Ygrad = res(2);
-                plot(Xgrad, Ygrad, 'bo', 'MarkerSize', 5, 'LineWidth', 0.5);
-            end
-            gradPour1Segment = [gradPour1Segment ; gradi];
-        end
-        grad = cat(3, grad, gradPour1Segment);
+        gradSeg = ModeleGaussienPourSegment(angles, Mij, sigma, segment);
+        grad = cat(3, grad, gradSeg);
     end
+end
+
+function gradSeg = ModeleGaussienPourSegment(angles, Mij, sigma, segment)
+
+    % Calcul du gradient théorique
+    nbligne = size(Mij(:, :,segment), 1);
+    nbcolonne = size(Mij(:, :, segment),2);
+    gradSeg =[];
+    for ligne=1:2:nbligne
+        gradLigne = [];
+        for colonne=1:nbcolonne
+            gradient = ModeleGaussienEnij(angles, Mij, sigma, ligne, colonne, segment);
+            gradLigne = [gradLigne gradient];
+        end
+        gradSeg = [gradSeg ; gradLigne];
+    end
+end
+
+function gradPoint = ModeleGaussienEnij(angles, Mij, sigma, ligne, colonne, segment)
+    vecteurDir = (angles(:,mod(segment,4)+1)-angles(:,segment))/norm(angles(:,mod(segment,4)+1)-angles(:,segment));
+    module = sigma*sqrt(2*pi)*[-vecteurDir(2); vecteurDir(1)];    
+    x = Mij(ligne, colonne,segment);
+    y = Mij(ligne+1, colonne,segment);
+    d = norm([x ; y] - (angles(:, mod(segment,4)+1)+angles(:,segment))/2);
+    phase = -d^2/(2*sigma^2);
+    gradPoint = -module*exp(phase);
+    
+    % Visualisation des gradients
+    res = round([x y] + gradPoint.');
+    Xgrad = res(1);
+    Ygrad = res(2);
+    plot(Xgrad, Ygrad, 'bo', 'MarkerSize', 5, 'LineWidth', 0.5);
 end
 
