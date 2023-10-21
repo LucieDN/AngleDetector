@@ -5,7 +5,6 @@ while hasFrame(video)
     imshow(frame)
 end
 
-%% Code Principal
 close all
 clear all
 
@@ -13,9 +12,10 @@ video = VideoReader("vid_in2.mp4");
 if hasFrame(video)
     frame = readFrame(video);
 end
-
+%% Code Principal
+sigma = 0.5;
 % Calcul des gradients en pratique
-gradPratique = CalculerGradientPrat(0.5, frame);
+gradPratique = CalculerGradientPrat(sigma, frame);
 
 % Capture des coordonnées pour la 1ère image
 coins = Demander4Points(frame);
@@ -25,7 +25,7 @@ Mij = DeterminerMij(5, 3, 0.7, 10, coins);% Paramètres : u, v, p, L
 
 % Calculer les gradients théoriques par une approximation à un modèle
 % gaussien
-gradTheo = ModeleGaussien(coins, Mij);
+gradTheo = ModeleGaussien(coins, Mij, 30);
 
 
 
@@ -94,16 +94,13 @@ function coins = Demander4Points(firstImage)
     hold on;
 end
 
-function grad = ModeleGaussien(angles, Mij)
+function grad = ModeleGaussien(angles, Mij, sigma)
     grad =[];
     for segment=1:4
         vecteurDir = (angles(:,mod(segment,4)+1)-angles(:,segment))/norm(angles(:,mod(segment,4)+1)-angles(:,segment));
-        a = angles(2,segment)-angles(2,mod(segment,4)+1);
-        b = angles(1,mod(segment,4)+1)-angles(1,segment);
-        c = -a*angles(1,segment)-b*angles(2,segment);
-        module = [-vecteurDir(2); vecteurDir(1)];
-        G = 10;
-        %Calcul du gradient estimé
+        module = sigma*sqrt(2*pi)*[-vecteurDir(2); vecteurDir(1)];
+
+        % Calcul du gradient théorique
         nbligne = size(Mij(:, :,segment), 1);
         nbcolonne = size(Mij(:, :, segment),2);
         gradPour1Segment =[];
@@ -112,8 +109,16 @@ function grad = ModeleGaussien(angles, Mij)
             for colonne=1:nbcolonne
                 x = Mij(ligne, colonne,segment);
                 y = Mij(ligne+1, colonne,segment);
-                phase = - (a*x+b*y+c)^2/(2*G^2*(a^2+b^2));
-                gradi = [gradi module*exp(phase)];
+                d = norm([x ; y] - (angles(:, mod(segment,4)+1)+angles(:,segment))/2);
+                phase = -d^2/(2*sigma^2);
+                gradient = -module*exp(phase);
+
+                % Visualisation des gradients
+                gradi = [gradi gradient];
+                res = round([x y] + gradient.');
+                Xgrad = res(1);
+                Ygrad = res(2);
+                plot(Xgrad, Ygrad, 'bo', 'MarkerSize', 5, 'LineWidth', 0.5);
             end
             gradPour1Segment = [gradPour1Segment ; gradi];
         end
