@@ -1,12 +1,18 @@
-function image = CreerImageVirtuelle(angles, imageOrigine)
-    image = CreerImageBinaire(angles, imageOrigine);
+function images = CreerImageVirtuelle(angles, imageOrigine)
+    images = [];
+    for seg=1:4
+        imageVirt = CreerImageBinaire(angles, imageOrigine, seg);
+        images = cat(3, images, imageVirt);
+    end
+    image = images(:,:,1)+images(:,:,2)+images(:,:,3)+images(:,:,4);
+    M= double(image==0);
+    figure, imshow(M);
 end
 
-function image = CreerImageBinaire(angles, imageOrigine)
+function image = CreerImageBinaire(angles, imageOrigine,seg)
     image = [];
     X = [];
     Y = [];
-    seg = 1;
     nbligne = size(imageOrigine, 1);
     nbcolonne = size(imageOrigine,2);
     P1 = round(angles(:,seg));
@@ -18,24 +24,33 @@ function image = CreerImageBinaire(angles, imageOrigine)
         X = [X x];
         Y = [Y round(vecteurDir*x+ordonneOrigine)];
     end
-
+    
     for ligne=1:nbligne
         for colonne=1:nbcolonne
-            image(ligne, colonne) = TesterPosition(vecteurDir,ordonneOrigine, [ligne colonne], Y);
+            image(ligne, colonne) = TesterPosition(vecteurDir,ordonneOrigine, [ligne colonne], Y, seg);
         end
     end
-    plot(X, Y)
-    %line([P1(1) P2(1)], [P1(2) P2(2)]) % On trace le rectangle virtuel
-    figure, imshow(image);
 end
 
-function bool = TesterPosition(vecteur, ordOrigine, point, Y)
-    bool = 1;
+function bool = TesterPosition(vecteur, ordOrigine, point, Y, seg)
+    bool = 1;% blanc par défaut
     y = point(1);
     x = point(2);
-    if y > Y(x)
+    
+
+    if seg == 1 && y > Y(x)
+        bool = 0;% 0 --> noir
+    end
+    if seg == 3 && y < Y(x)
         bool = 0;
     end
+    if seg == 2 && x < (y-ordOrigine)/vecteur
+        bool = 0;
+    end
+    if seg == 4 && x > (y-ordOrigine)/vecteur
+        bool = 0;
+    end
+    
 end
 
 
