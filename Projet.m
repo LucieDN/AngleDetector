@@ -9,18 +9,14 @@ end
 
 sigma = 30;
 % Calcul des gradients en pratique
-gradPratique = CalculerGradientPrat(sigma, frame);
+gradPratique = CalculerGradient(sigma, frame);
 
 % Capture des coordonnées pour la 1ère image
-coins = Demander4Points(frame);
+coins = DemanderPoints(frame);
 
 % Détermination de l'ensemble des points Mij
 Mij = DeterminerMij(5, 3, 0.7, 10, coins);% Paramètres : u, v, p, L
 
-% Calculer les gradients théoriques par une approximation à un modèle
-% gaussien
-%gradTheo = ModeleGaussien(coins, Mij, 30);
-
-
-
+% On crée une image virtuelle rempli de 0 et de 1
+imageVirtuelle = CreerImageVirtuelle(coins, frame);
 
