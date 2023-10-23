@@ -23,8 +23,4 @@ Mij = DeterminerMij(5, 3, 0.7, 10, coins);% Paramètres : u, v, p, L
 
 
 
-%% Functions
-
-
-
 
