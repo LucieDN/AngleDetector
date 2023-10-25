@@ -20,3 +20,9 @@ Mij = DeterminerMij(5, 3, 0.7, 10, coins);% Paramètres : u, v, p, L
 % On crée une image virtuelle rempli de 0 et de 1
 imageVirtuelle = CreerImageVirtuelle(coins, frame);
 
+% On calcule le gradient de l'image virtuelle
+gradTheorique = CalculerGradient(sigma, imageVirtuelle);
+
+C = CalculerCritere(gradPratique, gradTheorique, Mij);
+
+

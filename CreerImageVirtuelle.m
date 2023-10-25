@@ -1,4 +1,4 @@
-function images = CreerImageVirtuelle(angles, imageOrigine)
+function M = CreerImageVirtuelle(angles, imageOrigine)
     images = [];
     for seg=1:4
         imageVirt = CreerImageBinaire(angles, imageOrigine, seg);
