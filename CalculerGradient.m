@@ -1,13 +1,17 @@
-function grad = CalculerGradient(sigma, image)
-    G = CalculerProduitConv(sigma, image);
+function grad = CalculerGradient(image)
+    sigma=0.5;
+    [X,Y]=meshgrid(-2:2);
+    Hx=-X.*exp(-(X.^2+Y.^2)/(2*sigma^2));
+    Hy=-Y.*exp(-(X.^2+Y.^2)/(2*sigma^2));
 
-    for i=2:size(G,1)-2
-        for j=2:size(G,2)-2
-           % Calcul de la dérivé en x et en y pour chaque point:
-            derX(i,j) = (G(i,j+1)-G(i,j-1))/2; % Dérivé horizontale
-            derY(i,j) = (G(i+1,j)-G(i-1,j))/2; % Dérivé verticale
-        end
+    if (size(image, 3)==3)
+        L= image(:,:,1)/3+image(:,:,2)/3+image(:,:,3)/3;
+    else
+        L = image(:,:);
     end
 
-    grad = cat(3,derX, derY);
+    Gx=conv2(L,Hx,'same');
+    Gy=conv2(L,Hy,'same');
+    grad = cat(3, Gx, Gy);
 end
+
