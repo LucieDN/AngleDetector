@@ -1,6 +1,5 @@
-function grad = CalculerGradient(image)
-    sigma=0.5;
-    [X,Y]=meshgrid(-2:2);
+function grad = CalculerGradient(image, sigma, mesh)
+    [X,Y]=meshgrid(-mesh:mesh);
     Hx=-X.*exp(-(X.^2+Y.^2)/(2*sigma^2));
     Hy=-Y.*exp(-(X.^2+Y.^2)/(2*sigma^2));
 
@@ -9,9 +8,8 @@ function grad = CalculerGradient(image)
     else
         L = image(:,:);
     end
-
     Gx=conv2(L,Hx,'same');
     Gy=conv2(L,Hy,'same');
-    grad = cat(3, Gx, Gy);
+    grad = cat(3, -Gx, -Gy);
 end
 
