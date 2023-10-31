@@ -10,6 +10,6 @@ function grad = CalculerGradient(image, sigma, mesh)
     end
     Gx=conv2(L,Hx,'same');
     Gy=conv2(L,Hy,'same');
-    grad = cat(3, -Gx, -Gy);
+    grad = cat(3, Gx, Gy);
 end
 
