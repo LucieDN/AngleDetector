@@ -1,17 +1,11 @@
-function anglesFinaux = AmeliorerAngles(frame, angles, gradPratique)
-    % Variables méthode de Newton
-    epsilon = 3;
-    alpha = 10;
+function anglesFinaux = AmeliorerAngles(frame, angles, gradPratique, sigma, mesh, epsilon, alpha)
+    
     
     % Variable positionnement des Mij
     u = 20;
     v = 3;
     p = 0.7;
     L = 3;
-    
-    % Variables pour le calcul du gradient théorique
-    sigma = 3;% --> le meshgrid à 10 < 3*3 = 9
-    mesh = 10;
 
     F = [];
     for i=1:200
