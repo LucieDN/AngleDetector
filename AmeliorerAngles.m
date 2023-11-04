@@ -3,9 +3,9 @@ function anglesFinaux = AmeliorerAngles(frame, angles, gradPratique, sigma, mesh
     
     % Variable positionnement des Mij
     u = 20;
-    v = 3;
-    p = 0.7;
-    L = 3;
+    v = 1;
+    p = 0.8;
+    L = 1;
 
     F = [];
     for i=1:200
@@ -23,7 +23,7 @@ function anglesFinaux = AmeliorerAngles(frame, angles, gradPratique, sigma, mesh
     
         % On calcul le gradient théorique qui permet de recalculer le
         % critère avec cette position
-        MijIntermediaire = DeterminerMij(20, 3, 0.7, 3, coinsCalcul);% Paramètres : u, v, p, L, et toujours les Y sur la 1ère ligne
+        MijIntermediaire = DeterminerMij(u, v, p, L, coinsCalcul);% Paramètres : u, v, p, L, et toujours les Y sur la 1ère ligne
         imageVirtuelleIntermediaire = quadrangle_from_points(frame(:, :, 1), coinsCalcul(2,:), coinsCalcul(1,:));
         gradTheoriqueIntermediaire = CalculerGradient(imageVirtuelleIntermediaire,sigma,mesh);
         Cintermediaire = CalculerCritere(gradPratique, gradTheoriqueIntermediaire, MijIntermediaire);
@@ -33,6 +33,6 @@ function anglesFinaux = AmeliorerAngles(frame, angles, gradPratique, sigma, mesh
         
         F = [F C]; 
     end
-    anglesFinaux=angles;
-    figure, plot(F)
+    anglesFinaux = angles;
+    plot(F)
 end
